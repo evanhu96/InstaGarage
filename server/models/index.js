@@ -1,8 +1,10 @@
-User = require('./User')
-Post = require('./Post')
-Comment = require('./Comment')
-Reply = require('./Reply')
-Profile = require('./Profile')
+const UploadModel = require('./UploadModel')
+
+const User = require('./User')
+const Post = require('./Post')
+const Comment = require('./Comment')
+const Profile = require('./Profile')
 
 
-module.exports = {User,Post,Profile,Comment,Reply}
+
+module.exports = {User,Post,Profile,Comment,UploadModel}

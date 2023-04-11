@@ -12,6 +12,7 @@ const profileSchema = new Schema({
   },
   postCount: {
     type: Number,
+    default: 0,
   },
   posts: {
     type: Array,
@@ -20,6 +21,16 @@ const profileSchema = new Schema({
     type: String,
   },
 });
+profileSchema.pre("save", function (next) {
+  // Get the current number of posts
+  const numPosts = this.posts ? this.posts.length : 0;
+  
+  // Update the "postCount" property
+  this.postCount = numPosts;
+  
+  next();
+});
+
 
 const Profile = model("profile", profileSchema);
 module.exports = Profile;

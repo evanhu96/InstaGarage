@@ -1,5 +1,7 @@
-const { User, Comment, Reply, Post, Profile } = require("../models");
+const { User, Comment, Post, Profile } = require("../models");
 const { signToken } = require("../utils/auth");
+const s3 = require("../libs/s3");
+const UploadModel = require("../models/UploadModel");
 
 const resolvers = {
   Query: {
@@ -9,7 +11,7 @@ const resolvers = {
     posts: async (parent) => {
       const posts = await Post.find().sort({ date: -1 }).limit(20);
       const updatedPosts = [];
-      
+
       for (const post of posts) {
         const profile = await Profile.findOne({ username: post.username });
         const comments = await Comment.find({ post: post._id });
@@ -18,7 +20,6 @@ const resolvers = {
         updatedPost.comments = comments;
         updatedPosts.push(updatedPost);
       }
-      console.log(updatedPosts);
       return updatedPosts;
     },
 
@@ -30,10 +31,7 @@ const resolvers = {
       const params = _id ? { _id } : {};
       return Comment.find(params);
     },
-    replies: async (parent, { _id }) => {
-      const params = _id ? { _id } : {};
-      return Reply.find(params);
-    },
+
     profile: async (parent, { username }) => {
       const params = username ? { username } : {};
       const posts = await Post.find(params);
@@ -43,6 +41,24 @@ const resolvers = {
     },
   },
   Mutation: {
+    uploadFile: async (parent, { file }) => {
+      // console.log('file', filename)
+      // const { createReadStream, filename} = await file;
+      // const stream = createReadStream();
+      // const params = {
+      //   Bucket: process.env.BUCKET_NAME,
+      //   Key: filename,
+      //   Body: stream,
+      // };
+
+      // const upload = new UploadModel();
+      // upload.filename = filename;
+      // const createdFile = await upload.save();
+      // await s3.putObject(params).promise();
+      console.log("hellow");
+      // return createdFile;
+    },
+
     addUser: async (parent, { username, password, email }) => {
       const user = await User.create({ username, password, email });
       const token = signToken(user);
@@ -71,7 +87,6 @@ const resolvers = {
     },
 
     createPost: async (parent, { post, description, username }) => {
-      console.log();
       const newPost = await Post.create({
         post,
         description,
@@ -84,26 +99,15 @@ const resolvers = {
       parent,
       { post, comment, username, date, likes, replies }
     ) => {
-
-      console.log(post);
       const newComment = await Comment.create({
-        post:post,
-        comment:comment,
-        username:username,
+        post: post,
+        comment: comment,
+        username: username,
         date: Date.now(),
       });
-      console.log(newComment);
       return newComment;
     },
-    createReply: async (parent, { comment, reply, user, date, likes }) => {
-      const newReply = await Reply.create({
-        comment,
-        reply,
-        user,
-        date: Date.now(),
-      });
-      return newReply;
-    },
+
     updateProfile: async (
       parent,
       { username, email, posts, description, profilePic, friends }
@@ -134,13 +138,14 @@ const resolvers = {
       );
       return updateComment;
     },
-    updateReply: async (parent, { _id, comment, reply, user, date, likes }) => {
-      const updateReply = await Reply.findOneAndUpdate(
-        { _id },
-        { comment, reply, user, date, likes }
+    updateLikes: async (parent, { _id, likes }) => {
+      const updateLikes = await Post.findOneAndUpdate({ _id }, { likes }).catch(
+        (err) => console.log(err)
       );
-      return updateReply;
+      console.log(updateLikes)
+      return updateLikes;
     },
+
     deleteProfile: async (parent, { id }) => {
       const deletedProfile = await Profile.findByIdAndDelete(id);
       return deletedProfile;
@@ -153,10 +158,6 @@ const resolvers = {
     deleteComment: async (parent, { id }) => {
       const deletedComment = await Comment.findByIdAndDelete(id);
       return deletedComment;
-    },
-    deleteReply: async (parent, { id }) => {
-      const deletedReply = await Reply.findByIdAndDelete(id);
-      return deletedReply;
     },
   },
 };

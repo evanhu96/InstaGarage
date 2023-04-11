@@ -5,8 +5,6 @@ const userSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
   email: { type: String, required: true },
-  postCount: { type: Number, default: 0 },
-  posts: { typ: Array, default: [] },
 });
 // set up pre-save middleware to create password
 userSchema.pre("save", async function (next) {

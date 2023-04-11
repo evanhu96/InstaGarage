@@ -16,10 +16,9 @@ const typeDefs = gql`
     description: String
     username: String
     date: Date
-    likes: Int
+    likes: [String]
     profilePic: String
     comments: [Comment]
-
   }
   type Comment {
     _id: ID
@@ -29,25 +28,22 @@ const typeDefs = gql`
     date: Date
     likes: Int
   }
-  type Reply {
+
+  type Profile {
     _id: ID
-    comment: ID
-    reply: String
     username: String
-    date: Date
-    likes: Int
+    email: String
+    description: String
+    profilePic: String
+    posts: [Post]
   }
-type Profile {
-  _id: ID
-  username: String
-  email: String
-  description: String
-  profilePic: String
-  posts:[Post]
-}
   type Auth {
     token: ID!
     user: User
+  }
+  type FileInput {
+    file: Upload
+
   }
 
   type Query {
@@ -56,40 +52,25 @@ type Profile {
     posts: [Post]
     post(_id: ID!): Post
     comments(post: ID!): [Comment]
-    replies(comment: ID!): [Reply]
   }
   type Mutation {
     addUser(username: String, password: String, email: String): Auth
     login(username: String!, password: String!): Auth
 
-    createPost(
-      post: String!
-      description: String
-      username: String!
-    ): Post
+    createPost(post: String!, description: String, username: String!): Post
 
     createComment(
       post: String
       comment: String
       username: String
       date: Date
-
     ): Comment
-
-    createReply(
-      comment: ID
-      reply: String
-      user: String
-      date: Date
-      
-    ): Reply
 
     updateProfile(
       username: String
       email: String
       description: String
       profilePic: String
-
     ): Profile
 
     updatePost(
@@ -110,19 +91,11 @@ type Profile {
       likes: Int
     ): Comment
 
-    updateReply(
-      _id: ID
-      comment: ID
-      reply: String
-      user: String
-      date: Date
-      likes: Int
-    ): Reply
-
+    updateLikes(_id: ID, likes: [String]): Post
+    uploadFile(file: Upload): FileInput
     deleteProfile(_id: ID): Profile
     deletePost(_id: ID): Post
     deleteComment(_id: ID): Comment
-    deleteReply(_id: ID): Reply
   }
 `;
 
