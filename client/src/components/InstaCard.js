@@ -51,7 +51,7 @@ export default function InstaCard({
   const [likes, setLikes] = useState(like);
   const timeSince = getTimeSince(timestamp);
   const [updateLikes, { error: updateError }] = useMutation(UPDATE_LIKES);
-
+console.log('hey bitch')
   useEffect(() => {
     updateLikes({ variables: { id: post, likes: likes } }).catch((err) => {
       console.log(err);
